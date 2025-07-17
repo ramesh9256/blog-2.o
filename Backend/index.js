@@ -12,7 +12,7 @@ const app = express();
 
 connectDb();
 app.use(cors({
-    origin: "https://blog-app-five-ashen-13.vercel.app/", // ✅ frontend origin
+    origin: "https://blog-app-silk-rho.vercel.app/", // ✅ frontend origin
     credentials: true,
 }));
 app.use(express.json());
