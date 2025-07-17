@@ -12,7 +12,7 @@ const Contact = () => {
       setMsg(res.data.message);
       setForm({ name: "", email: "", message: "" });
     } catch (err) {
-      setMsg("Failed to send message.");
+      setMsg("Failed to send message. d");
     }
   };
 
