@@ -12,6 +12,8 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      console.log("inLogin test");
+      
       const res = await API.post("/user/login", form);
       setMessage({ type: "success", text: res.data.message });
 
