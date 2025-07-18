@@ -9,7 +9,7 @@ const contactRoutes = require("./routes/contactRoutes");
 const connectDb = require('./config/db')
 
 const app = express();
-
+app.set("trust proxy", 1);
 app.use(cors({
     origin:["https://blog-2-o.vercel.app","http://localhost:5173"], 
     credentials: true,

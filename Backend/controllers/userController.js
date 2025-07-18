@@ -108,20 +108,22 @@ exports.loginController = async (req, res) => {
     // 4 . generate token 
 
     const token = generateToken({ id: user._id, email: user.email });
+    console.log(token);
+    
+    res.header("Access-Control-Allow-Credentials", "true");
 
     // store in cookie
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite:"None",
+      secure: false,
+      sameSite:"Lax",
       maxAge: 24 * 60 * 60 * 1000
     });
     // ✅ 6. Send success response
     return res.status(200).send({
       success: true,
       message: "Login successful",
-      token,
       user: {
         id: user._id,
         username: user.username,
