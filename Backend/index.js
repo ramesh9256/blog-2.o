@@ -12,7 +12,7 @@ const app = express();
 
 connectDb();
 app.use(cors({
-    origin: "https://blog-app-tjk6.vercel.app", // ✅ frontend origin
+    origin: "https://blog-app-t3cq.vercel.app/", // ✅ frontend origin
     credentials: true,
 }));
 
