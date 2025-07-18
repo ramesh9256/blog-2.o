@@ -72,7 +72,10 @@ exports.registerController = async (req, res) => {
 
 
 exports.loginController = async (req, res) => {
+  console.log("loginController Hit");
+  
   try {
+    console.log("Login Request Body:", req.body);
     const { email, password } = req.body;
 
     // 1. Validation
@@ -94,6 +97,7 @@ exports.loginController = async (req, res) => {
 
     // 3. Compare password
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("🔐 Password Match:", isMatch);
     if (!isMatch) {
       return res.status(401).send({
         success: false,
@@ -124,7 +128,7 @@ exports.loginController = async (req, res) => {
         email: user.email,
         role: user.role,
       }
-      // ❌ Don't send token here — already set in cookie
+      
     });
 
   } catch (error) {

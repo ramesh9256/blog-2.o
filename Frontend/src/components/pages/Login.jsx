@@ -14,7 +14,7 @@ const Login = () => {
     try {
       console.log("inLogin test");
       
-      const res = await API.post("/user/login", {email , password});
+      const res = await API.post("/user/login", form , { withCredentials: true});
       setMessage({ type: "success", text: res.data.message });
 
       // Save user and redirect after small delay
@@ -85,7 +85,7 @@ const Login = () => {
         </form>
 
         <p className="text-center text-sm text-gray-400 mt-6">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <a
             href="/register"
             className="text-white underline hover:text-gray-300"

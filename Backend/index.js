@@ -10,20 +10,20 @@ const connectDb = require('./config/db')
 
 const app = express();
 
-connectDb();
 app.use(cors({
-    origin:true, 
+    origin:["https://blog-2-o.vercel.app","http://localhost:5173"], 
     credentials: true,
 }));
 
 app.use(express.json());
-app.use(morgan());
+app.use(morgan("dev"));
 app.use(cookieParser());
 
 app.use('/api/v1/user', userRoutes)
 app.use('/api/v1/blog', blogRoutes)
 app.use("/api", contactRoutes);
 
+connectDb();
 app.get('/', (req, res) => {
     res.send("hello")
 })
