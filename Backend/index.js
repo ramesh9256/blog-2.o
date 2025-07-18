@@ -12,7 +12,7 @@ const app = express();
 
 connectDb();
 app.use(cors({
-    origin: true, 
+    origin:true, 
     credentials: true,
 }));
 

@@ -4,11 +4,11 @@ import axios from "axios";
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [msg, setMsg] = useState("");
-                                                                                                  // http://localhost:5000/api/contact
+                                                                                                  // http://localhost:5000/api/contact , https://blog-2-o.onrender.com/api/contact
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(" http://localhost:5000/api/contact", form);
+      const res = await axios.post("https://blog-2-o.onrender.com/api/contact", form);
       setMsg(res.data.message);
       setForm({ name: "", email: "", message: "" });
     } catch (err) {
