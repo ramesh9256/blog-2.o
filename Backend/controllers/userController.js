@@ -1,6 +1,6 @@
 const userModel = require('../models/userModel');
 const bcrypt = require('bcrypt');
-// const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const { generateToken } = require('../middleware/authMiddleware')
 
 exports.getAllUsers = async (req, res) => {
@@ -109,7 +109,8 @@ exports.loginController = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: true,
+      sameSite:"None",
       maxAge: 24 * 60 * 60 * 1000
     });
     // ✅ 6. Send success response

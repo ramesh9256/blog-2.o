@@ -14,7 +14,7 @@ const Login = () => {
     try {
       console.log("inLogin test");
       
-      const res = await API.post("/user/login", form);
+      const res = await API.post("/user/login", {email , password});
       setMessage({ type: "success", text: res.data.message });
 
       // Save user and redirect after small delay
