@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const blogModel = require('../models/blogModel')
 const userModel = require('../models/userModel')
 
+
 exports.getAllBlogsController = async (req, res) => {
     try {
         const blogs = await blogModel.find({}).populate("user")
@@ -29,28 +30,58 @@ exports.getAllBlogsController = async (req, res) => {
     }
 }
 
+
+// exports.createBlogController = async (req, res) => {
+//   try {
+//     const { title, description, image, user } = req.body;
+//     const existingUser = await userModel.findById(user); 
+//     console.log(existingUser);
+    
+//     if (!title || !description || !image || !user) {
+//       return res.status(400).json({ success: false, message: "Missing fields" });
+//     }
+
+//     const blog = new blogModel({
+//       title,
+//       description,
+//       image,  // image filename ya URL  
+//       user,
+//     });
+
+//     await blog.save();
+
+//     return res.status(201).json({
+//       success: true,
+//       message: "Blog created successfully",
+//       blog,
+//     });
+//   } catch (error) {
+//     console.error("Create blog error:", error);
+//     return res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// };
 exports.createBlogController = async (req, res) => {
   try {
-    const { title, description, user } = req.body;
-    const image = req.file?.filename;
+    const { title, description, image, user } = req.body;
 
-    // Validation
+    // ✅ Check all fields
     if (!title || !description || !image || !user) {
-      return res.status(400).send({
+      return res.status(400).json({
         success: false,
-        message: "Please Provide All Fields",
+        message: "All fields are required (title, description, image, user)",
       });
     }
 
+    // ✅ Validate user exists
     const existingUser = await userModel.findById(user);
-
     if (!existingUser) {
-      return res.status(404).send({
+      return res.status(404).json({
         success: false,
-        message: "Unable to find user",
+        message: "User not found with this ID",
       });
     }
 
+    // ✅ Create new blog
     const newBlog = new blogModel({
       title,
       description,
@@ -58,65 +89,50 @@ exports.createBlogController = async (req, res) => {
       user,
     });
 
-    // Use session to ensure consistency
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    await newBlog.save();
 
-    await newBlog.save({ session });
-    existingUser.blogs.push(newBlog);
-    await existingUser.save({ session });
+    // ✅ Push blog to user's blog array if model has blogs field
+    existingUser.blogs.push(newBlog._id);
+    await existingUser.save();
 
-    await session.commitTransaction();
-
-    return res.status(201).send({
+    return res.status(201).json({
       success: true,
       message: "Blog created successfully",
       blog: newBlog,
     });
+
   } catch (error) {
-    console.log(error);
-    return res.status(500).send({
+    console.error("Error in createBlogController:", error);
+    return res.status(500).json({
       success: false,
-      message: "Error while creating blog",
-      error,
+      message: "Server error while creating blog",
+      error: error.message,
     });
   }
 };
 
 
+
 exports.updateBlogController = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { title, description, image } = req.body;
-        const blog = await blogModel.findById(id);
-        if (!blog) {
-            return res.status(400).send({
-                success: false,
-                message: "Unable to find blog"
-            })
-        }
-        const updatedBlog = await blogModel.findByIdAndUpdate(
-            id,
-            { title, description, image },
-            { new: true }
-        );
+  try {
+    const { title, description, image } = req.body;
+    const blog = await blogModel.findById(req.params.id);
 
-        return res.status(200).send({
-            success: true,
-            message: "Blog updated",
-            updatedBlog
-        })
+    if (!blog) return res.status(404).json({ success: false, message: "Blog not found" });
 
-    } catch (error) {
-        console.log(error);
-        return res.status(400).send({
-            success: false,
-            message: "Error while Updating blog",
-            error
-        });
+    blog.title = title || blog.title;
+    blog.description = description || blog.description;
+    blog.image = image || blog.image;  // image URL ya filename
 
-    }
-}
+    await blog.save();
+
+    res.status(200).json({ success: true, message: "Blog updated successfully", blog });
+  } catch (err) {
+    console.error("Update blog error:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 
 exports.getBlogByIdController = async (req, res) => {
     try {
