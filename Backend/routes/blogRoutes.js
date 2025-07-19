@@ -1,4 +1,5 @@
 const express = require('express');
+const upload = require("../middleware/uploadMiddleware")
 const { getAllBlogsController, createBlogController, updateBlogController, getBlogByIdController, deleteBlogController, userBlogController } = require('../controllers/blogController');
 
 const router = express.Router();
@@ -8,7 +9,7 @@ const router = express.Router();
 router.get("/all-blog", getAllBlogsController);
 
 // POST || create blog 
-router.post("/create-blog", createBlogController);
+router.post("/create-blog",upload.single("image"), createBlogController);
 
 // PUT || update blog
 router.put("/update-blog/:id", updateBlogController);

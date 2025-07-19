@@ -30,52 +30,59 @@ exports.getAllBlogsController = async (req, res) => {
 }
 
 exports.createBlogController = async (req, res) => {
-    try {
-        const { title, description, image, user } = req.body;
+  try {
+    const { title, description, user } = req.body;
+    const image = req.file?.filename;
 
-        // validation 
-
-        if (!title || !description || !image || !user) {
-            return res.status(400).send({
-                success: false,
-                message: "Please Provide All Fields",
-            })
-        }
-
-        const existingUser = await userModel.findById(user);
-
-        // validation 
-
-        if (!existingUser) {
-            return res.status(404).send({
-                success: false,
-                message: "unable to find user",
-            })
-        }
-        const newBlog = new blogModel({ title, description, image, user });
-
-        const session = await mongoose.startSession();
-        session.startTransaction();
-        await newBlog.save({ session });
-        existingUser.blogs.push(newBlog);
-        await existingUser.save({ session });;
-        await session.commitTransaction();
-
-        // await newBlog.save();
-        return res.status(201).send({
-            success: true,
-            message: "Blog created",
-        })
-    } catch (error) {
-        console.log(error);
-        return res.status(400).send({
-            success: false,
-            message: "Error while created blog",
-            error
-        });
-
+    // Validation
+    if (!title || !description || !image || !user) {
+      return res.status(400).send({
+        success: false,
+        message: "Please Provide All Fields",
+      });
     }
-}
+
+    const existingUser = await userModel.findById(user);
+
+    if (!existingUser) {
+      return res.status(404).send({
+        success: false,
+        message: "Unable to find user",
+      });
+    }
+
+    const newBlog = new blogModel({
+      title,
+      description,
+      image,
+      user,
+    });
+
+    // Use session to ensure consistency
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    await newBlog.save({ session });
+    existingUser.blogs.push(newBlog);
+    await existingUser.save({ session });
+
+    await session.commitTransaction();
+
+    return res.status(201).send({
+      success: true,
+      message: "Blog created successfully",
+      blog: newBlog,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Error while creating blog",
+      error,
+    });
+  }
+};
+
 
 exports.updateBlogController = async (req, res) => {
     try {

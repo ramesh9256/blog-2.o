@@ -8,11 +8,11 @@ const CreateBlog = () => {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    image: "",
   });
+  const [imageFile, setImageFile] = useState(null);
 
-  const [message, setMessage] = useState(null); // ✅ Success/Error message
-  const [showMsg, setShowMsg] = useState(false); // ✅ Animation visibility control
+  const [message, setMessage] = useState(null);
+  const [showMsg, setShowMsg] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -25,14 +25,32 @@ const CreateBlog = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      await API.post("/blog/create-blog", { ...form, user: user?.id });
-      setForm({ title: "", description: "", image: "" });
+    if (!form.title || !form.description || !imageFile) {
+      setMessage("❌ Please fill all fields including image");
+      setShowMsg(true);
+      setTimeout(() => setShowMsg(false), 3000);
+      return;
+    }
 
-      // ✅ Show success message
+    try {
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("user", user?.id);
+      formData.append("image", imageFile); // actual image file
+
+      await API.post("/blog/create-blog", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setForm({ title: "", description: "" });
+      setImageFile(null);
+
       setMessage("✅ Blog created successfully");
       setShowMsg(true);
-      setTimeout(() => setShowMsg(false), 3000); // hide after 3 sec
+      setTimeout(() => setShowMsg(false), 3000);
     } catch (err) {
       console.error(err);
       setMessage("❌ Error creating blog");
@@ -43,7 +61,6 @@ const CreateBlog = () => {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4">
-      {/* ✅ Message Box */}
       {showMsg && (
         <div className="mb-4 bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-500 ease-in-out animate-fade-in-out">
           {message}
@@ -75,12 +92,11 @@ const CreateBlog = () => {
         />
 
         <input
-          type="text"
-          placeholder="Image URL"
-          value={form.image}
-          onChange={(e) => setForm({ ...form, image: e.target.value })}
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files[0])}
           required
-          className="w-full px-4 py-2 bg-gray-800 text-white border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full text-white"
         />
 
         <button
